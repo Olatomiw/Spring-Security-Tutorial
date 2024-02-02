@@ -22,22 +22,24 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain (HttpSecurity http) throws Exception {
-        http
-                .csrf().disable()
-                .authorizeHttpRequests()
-                    .requestMatchers("/").authenticated()
-                    .anyRequest().authenticated()
-                .and().httpBasic(Customizer.withDefaults());
+
+        http.csrf((csrf)->csrf.disable());
+//        Authentication
+        http.formLogin(Customizer.withDefaults());
+        http.httpBasic(Customizer.withDefaults());
+//        Authorization
+        http.authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/api/v1/welcome", "/api/v1/create", "api/v1/get").permitAll()
+                        .anyRequest().authenticated());
         return http.build();
     }
-
     @Bean
     public UserDetailsService userDetailsService(){
         return new JpaUserDetailsService();
     }
     @Bean
     public PasswordEncoder passwordEncoder(){
-       return NoOpPasswordEncoder.getInstance();
+        return new BCryptPasswordEncoder();
     }
     @Bean
     public DaoAuthenticationProvider daoAuthenticationProvider(){
