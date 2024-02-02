@@ -27,8 +27,6 @@ public class UserController {
         MyUser user = new MyUser();
         user.setUsername(userDto.getUsername());
         user.setPassword(passwordEncoder.encode(userDto.getPassword()));
-//        user.setRole(UserRole.ROLE_USER.getRole());
-//        passwordEncoder.encode(user.getPassword());
         userRepository.save(user);
         return new ResponseEntity<>("Okay", HttpStatus.CREATED);
     }
@@ -40,7 +38,7 @@ public class UserController {
                 return new ResponseEntity<>("No User found", HttpStatus.BAD_REQUEST);
             }
             MyUser user = optionalMyUser.get();
-            return new ResponseEntity<>(user.getUsername(), HttpStatus.FOUND);
+            return new ResponseEntity<>(user, HttpStatus.FOUND);
         }catch (Exception e){
             e.printStackTrace();
         }

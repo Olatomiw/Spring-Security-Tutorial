@@ -5,9 +5,12 @@ import com.security.Spring.Security.model.MyUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
+import java.util.Optional;
 
 public class JpaUserDetailsService implements UserDetailsService {
 
@@ -16,12 +19,12 @@ public class JpaUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-       MyUser foundUser = userRepository.findByUsername(username);
+       Optional <MyUser> foundUser = userRepository.findByUsername(username);
 
-       if (foundUser == null){
-           throw new UsernameNotFoundException("Username not found");
-       }
-
-       return new UserDetail(foundUser);
+           return foundUser
+                   .map(user -> User.withUsername(user.getUsername())
+                           .password(user.getPassword())
+                           .build())
+                   .orElseThrow(()-> new UsernameNotFoundException("Username not found: " + username));
     }
 }

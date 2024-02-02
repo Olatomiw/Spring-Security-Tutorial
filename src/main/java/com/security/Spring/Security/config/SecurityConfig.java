@@ -29,7 +29,7 @@ public class SecurityConfig {
         http.httpBasic(Customizer.withDefaults());
 //        Authorization
         http.authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/v1/welcome", "/api/v1/create", "api/v1/get").permitAll()
+                        .requestMatchers("/api/v1/welcome", "/api/v1/create", "api/v1/get/**").permitAll()
                         .anyRequest().authenticated());
         return http.build();
     }
