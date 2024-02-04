@@ -25,7 +25,9 @@ public class SecurityConfig {
 
         http.csrf((csrf)->csrf.disable());
 //        Authentication
-        http.formLogin(Customizer.withDefaults());
+        http
+                .formLogin((formlogin)->formlogin
+                        .defaultSuccessUrl("/api/v1/currentUser"));
         http.httpBasic(Customizer.withDefaults());
 //        Authorization
         http.authorizeHttpRequests(authorize -> authorize
@@ -45,7 +47,6 @@ public class SecurityConfig {
     public DaoAuthenticationProvider daoAuthenticationProvider(){
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
         authenticationProvider.setUserDetailsService(userDetailsService());
-//        authenticationProvider.setUserDetailsPasswordService();
         authenticationProvider.setPasswordEncoder(passwordEncoder());
         return authenticationProvider;
     }
