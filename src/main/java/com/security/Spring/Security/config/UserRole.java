@@ -5,15 +5,11 @@ import lombok.Setter;
 
 @Getter
 public enum UserRole {
-    ROLE_USER("user"),
-    ROLE_ADMIN("Admin");
+    ROLE_USER,
+    ROLE_ADMIN,
+    ROLE_NURSE,
+    ROLE_DOCTOR;
 
-
-    String role;
-//    String admin;
-    UserRole(String role){
-       this.role = role;
-    }
 
 
 }

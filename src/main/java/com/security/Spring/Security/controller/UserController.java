@@ -7,14 +7,10 @@ import com.security.Spring.Security.model.MyUser;
 import com.security.Spring.Security.repository.UserRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.pulsar.PulsarProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.validation.annotation.Validated;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -32,8 +28,21 @@ public class UserController {
     @PostMapping("/create")
     public ResponseEntity<?> createUser(@Valid @RequestBody UserDto userDto){
         MyUser user = new MyUser();
+        Optional<MyUser> optionalUser = userRepository.findByUsername(userDto.getUsername());
+        if (optionalUser.isPresent()) {
+            return new ResponseEntity<>("User already exist", HttpStatus.BAD_REQUEST);
+        }
         user.setUsername(userDto.getUsername());
         user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        if (userDto.getRole().equalsIgnoreCase("User")){
+            user.setRole(UserRole.ROLE_USER);
+        } else if (userDto.getRole().equalsIgnoreCase("Admin")) {
+            user.setRole(UserRole.ROLE_ADMIN);
+        } else if (userDto.getRole().equalsIgnoreCase("Doctor")) {
+            user.setRole(UserRole.ROLE_DOCTOR);
+        } else if (userDto.getRole().equalsIgnoreCase("Nurse")) {
+            user.setRole(UserRole.ROLE_NURSE);
+        }
         userRepository.save(user);
         return new ResponseEntity<>("Okay", HttpStatus.CREATED);
     }
@@ -57,4 +66,10 @@ public class UserController {
     public ResponseEntity<?> loggedIn (){
      return currentUserService.getLoggedInUser();
     }
+
+//    @PostMapping("/update_role")
+//    public ResponseEntity<?> updateProfile(){
+//        if (currentUserService.getLoggedInUser())
+//        return null;
+//    }
 }

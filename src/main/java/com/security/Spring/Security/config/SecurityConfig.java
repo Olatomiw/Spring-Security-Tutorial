@@ -4,8 +4,10 @@ import com.security.Spring.Security.repository.JpaUserDetailsService;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -30,8 +32,11 @@ public class SecurityConfig {
                         .defaultSuccessUrl("/api/v1/currentUser"));
         http.httpBasic(Customizer.withDefaults());
 //        Authorization
-        http.authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/v1/welcome", "/api/v1/create", "api/v1/get/**").permitAll()
+        http.authorizeRequests(authorize -> authorize
+                        .requestMatchers("/api/v1/welcome",
+                                "/api/v1/create",
+                                "api/v1/get/**"). permitAll()
+                        .requestMatchers("api/v1/currentUser").hasAnyAuthority(UserRole.ROLE_ADMIN.toString(),UserRole.ROLE_NURSE.toString())
                         .anyRequest().authenticated());
         return http.build();
     }
@@ -49,5 +54,10 @@ public class SecurityConfig {
         authenticationProvider.setUserDetailsService(userDetailsService());
         authenticationProvider.setPasswordEncoder(passwordEncoder());
         return authenticationProvider;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager (AuthenticationConfiguration configuration) throws Exception{
+        return configuration.getAuthenticationManager();
     }
 }

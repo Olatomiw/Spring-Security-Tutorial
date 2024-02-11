@@ -5,11 +5,13 @@ import com.security.Spring.Security.model.MyUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import java.util.List;
 import java.util.Optional;
 
 public class JpaUserDetailsService implements UserDetailsService {
@@ -21,10 +23,10 @@ public class JpaUserDetailsService implements UserDetailsService {
 
        Optional <MyUser> foundUser = userRepository.findByUsername(username);
 
-           return foundUser
-                   .map(user -> User.withUsername(user.getUsername())
-                           .password(user.getPassword())
-                           .build())
-                   .orElseThrow(()-> new UsernameNotFoundException("Username not found: " + username));
+           return foundUser.map(user ->
+                   new User(user.getUsername(), user.getPassword(),
+                           List.of(new SimpleGrantedAuthority(user.getRole().toString()))))
+                   .orElseThrow(()-> new UsernameNotFoundException("username not found" + username));
+
     }
 }
