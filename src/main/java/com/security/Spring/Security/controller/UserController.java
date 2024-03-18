@@ -1,6 +1,7 @@
 package com.security.Spring.Security.controller;
 
 import com.security.Spring.Security.Service.CurrentUserService;
+import com.security.Spring.Security.Util.ProfileOutput;
 import com.security.Spring.Security.config.UserRole;
 import com.security.Spring.Security.dto.UserDto;
 import com.security.Spring.Security.model.MyUser;
@@ -49,12 +50,15 @@ public class UserController {
     @GetMapping("/get/{id}")
     public ResponseEntity<?> getUser(@PathVariable Long id){
         Optional<MyUser> optionalMyUser = userRepository.findById(id);
+        ProfileOutput profileOutput = new ProfileOutput();
         try {
             if (optionalMyUser.isEmpty()){
                 return new ResponseEntity<>("No User found", HttpStatus.BAD_REQUEST);
             }
             MyUser user = optionalMyUser.get();
-            return new ResponseEntity<>(user, HttpStatus.FOUND);
+            profileOutput.setName(user.getUsername());
+            profileOutput.setRole(user.getRole().toString());
+            return new ResponseEntity<>(profileOutput, HttpStatus.FOUND);
         }catch (Exception e){
             e.printStackTrace();
         }

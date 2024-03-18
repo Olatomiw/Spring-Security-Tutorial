@@ -15,30 +15,31 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.SecurityFilterChain;
 
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig {
-
-
-    @Bean
     public SecurityFilterChain securityFilterChain (HttpSecurity http) throws Exception {
-
-        http.csrf((csrf)->csrf.disable());
-//        Authentication
-        http
-                .formLogin((formlogin)->formlogin
-                        .defaultSuccessUrl("/api/v1/currentUser"));
-        http.httpBasic(Customizer.withDefaults());
-//        Authorization
-        http.authorizeRequests(authorize -> authorize
+        DefaultSecurityFilterChain securityFilterChain = http
+//                Cors
+                .csrf(e->e.disable())
+                .cors(e->e.disable())
+//                Login page
+                .formLogin(login->login
+                        .defaultSuccessUrl("/api/v1/currentUser"))
+                .httpBasic(Customizer.withDefaults())
+//                Api authorization and authentication
+                .authorizeHttpRequests(e->e
                         .requestMatchers("/api/v1/welcome",
                                 "/api/v1/create",
-                                "api/v1/get/**"). permitAll()
-                        .requestMatchers("api/v1/currentUser").hasAnyAuthority(UserRole.ROLE_ADMIN.toString(),UserRole.ROLE_NURSE.toString())
-                        .anyRequest().authenticated());
-        return http.build();
+                                "api/v1/get/**").permitAll()
+                        .requestMatchers("api/v1/currentUser").hasAnyAuthority(UserRole.ROLE_ADMIN.toString(),
+                                UserRole.ROLE_DOCTOR.toString())
+                        .anyRequest().authenticated())
+                .build();
+        return securityFilterChain;
     }
     @Bean
     public UserDetailsService userDetailsService(){
